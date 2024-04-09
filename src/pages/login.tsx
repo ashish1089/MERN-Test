@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import Navbar from "../navbar";
+import Navbar from "./navbar";
 
 function Login() {
   const [type, setType] = useState("password");

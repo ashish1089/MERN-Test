@@ -1,23 +1,44 @@
+"use client";
 import Head from "next/head";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "./navbar";
+import React, { useState } from "react";
+import { api } from "~/utils/api";
+import { useRouter } from "next/navigation";
 
-const useUser = () => ({ user: null });
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+}
 
 export default function Home() {
-  const { user } = useUser();
   const router = useRouter();
+  const [data, setData] = useState<FormData>({
+    username: "",
+    email: "",
+    password: "",
+  });
 
-  useEffect(() => {
-    if (!user) {
-      router.replace("/");
-      console.log("user not exits");
-    } else {
-      router.push("/login");
-    }
-  }, [router, user]);
+  const addNewUser = api.newuser.create.useMutation({});
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, name } = event.target;
+    setData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    addNewUser.mutate({
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    });
+    setData({ username: "", email: "", password: "" });
+    router.push("/login");
+  };
 
   return (
     <>
@@ -29,14 +50,22 @@ export default function Home() {
       <Navbar />
       <main className="mx-auto h-screen  max-w-[1440px]">
         <div className="mx-auto mt-8 h-[691px] w-[576px] rounded-[20px] border-2 px-[60px] pt-8">
-          <form action="post">
+          <form
+            action="post"
+            onSubmit={(event) => {
+              handleSubmit(event);
+            }}
+          >
             <h1 className="pb-6 text-center text-[32px] font-semibold">
               Create your account
             </h1>
-            <label htmlFor="name">
+            <label htmlFor="username">
               Name
               <input
                 type="text"
+                value={data.username}
+                onChange={(event) => handleChange(event)}
+                name="username"
                 placeholder="Enter"
                 className="mb-7 mt-2 w-full rounded-[6px] border px-4 py-3 "
               />
@@ -45,6 +74,9 @@ export default function Home() {
               Email
               <input
                 type="email"
+                value={data.email}
+                onChange={(event) => handleChange(event)}
+                name="email"
                 placeholder="Enter"
                 className="mb-7 mt-2 w-full rounded-[6px] border px-4 py-3 "
               />
@@ -53,12 +85,18 @@ export default function Home() {
               Password
               <input
                 type="password"
+                value={data.password}
+                onChange={(event) => handleChange(event)}
+                name="password"
                 placeholder="Enter"
                 className="mb-7 mt-2 w-full rounded-[6px] border px-4 py-3 "
               />
             </label>
 
-            <button className="mt-4 h-[56px] w-[456px] rounded-[6px] bg-black text-white">
+            <button
+              className="mt-4 h-[56px] w-[456px] rounded-[6px] bg-black text-white"
+              type="submit"
+            >
               CREATE ACCOUNT
             </button>
           </form>
@@ -74,3 +112,19 @@ export default function Home() {
     </>
   );
 }
+
+/* 
+
+// const useUser = () => ({ user: null });
+  // const { user } = useUser();
+  // const router = useRouter();
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     router.replace("/");
+  //     console.log("user not exits");
+  //   } else {
+  //     router.push("/login");
+  //   }
+  // }, [router, user]);
+*/
