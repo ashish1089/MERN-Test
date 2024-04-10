@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import Navbar from "./navbar";
+import Navbar from "../components/navbar";
 
 function Login() {
   const [type, setType] = useState("password");
@@ -15,7 +15,6 @@ function Login() {
   };
   return (
     <>
-      <Navbar />
       <div className="mx-auto mt-8 h-[691px] w-[576px] rounded-[20px] border-2 px-[60px] pt-8">
         <form action="post">
           <h1 className="pb-6 text-center text-[32px] font-semibold">Login</h1>
