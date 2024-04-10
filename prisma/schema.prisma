@@ -11,12 +11,19 @@ datasource db {
 }
 
 model user {
-    id         Int      @id @default(autoincrement())
-    email      String   @unique
+    id         Int        @id @default(autoincrement())
+    email      String     @unique
     username   String
     password   String
     verifyOtp  Int?
-    isVerified Boolean? @default(false)
+    isVerified Boolean?   @default(false)
+    interest   interest[]
 
     @@index([email, username])
+}
+
+model interest {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+    user user[]
 }

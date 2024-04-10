@@ -1,12 +1,28 @@
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import OtpInput from "~/components/otpInput";
 import { useRouter } from "next/router";
+import { api } from "~/utils/api";
+import Link from "next/link";
 
 function Verify() {
   const router = useRouter();
-  const { email } = router.query;
+  const data = router.query;
+  const email = data.email?.toString();
   const [otp, setOtp] = useState("");
   const handleOtpChange = (value: string) => setOtp(value);
+
+  const verifyUser = api.user.verify.useMutation();
+
+  const verifiedUser = email ? api.user.get.useQuery({ email: email }) : null;
+
+  const handleClick = () => {
+    if (email) {
+      verifyUser.mutate({ email: email });
+    }
+    console.log("user verify", verifiedUser?.data?.isVerified);
+    router.replace("/login").catch((error) => console.log(error));
+  };
 
   return (
     <>
@@ -22,7 +38,10 @@ function Verify() {
         </div>
         Code
         <OtpInput length={8} onChange={handleOtpChange} />
-        <button className="mt-16 h-[56px] w-[456px] rounded-[6px] bg-black text-white">
+        <button
+          className="mt-16 h-[56px] w-[456px] rounded-[6px] bg-black text-white"
+          onClick={handleClick}
+        >
           VERIFY
         </button>
       </div>
