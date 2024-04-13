@@ -3,24 +3,21 @@ import React, { useEffect, useState } from "react";
 import OtpInput from "~/components/otpInput";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
-import Link from "next/link";
 
 function Verify() {
   const router = useRouter();
   const data = router.query;
+
   const email = data.email?.toString();
+  console.log(email);
   const [otp, setOtp] = useState("");
   const handleOtpChange = (value: string) => setOtp(value);
 
-  const verifyUser = api.user.verify.useMutation();
-
-  const verifiedUser = email ? api.user.get.useQuery({ email: email }) : null;
+  const { mutate: verifyUser } = api.user.verify.useMutation();
 
   const handleClick = () => {
-    if (email) {
-      verifyUser.mutate({ email: email });
-    }
-    console.log("user verify", verifiedUser?.data?.isVerified);
+    email && verifyUser({ email: email });
+
     router.replace("/login").catch((error) => console.log(error));
   };
 

@@ -30,18 +30,23 @@ export default function Home() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isUserExist) {
-      console.log("user Exist ", isUserExist);
-      await router.push("/login");
-    } else {
-      addNewUser.mutate({
-        username: userInput.username,
+    // if (isUserExist) {
+    //   console.log("user Exist ", isUserExist);
+    //   await router.push("/login");
+    // } else {
+    //   addNewUser.mutate({
+    //     username: userInput.username,
+    //     email: userInput.email,
+    //     password: userInput.password,
+    //   });
+    console.log("User SignUp successfully");
+    // await router.push(`/verify?query${userInput.email}`);
+    await router.push({
+      pathname: "verify",
+      query: {
         email: userInput.email,
-        password: userInput.password,
-      });
-      console.log("User SignUp successfully");
-      await router.push(`/verify?query${userInput.email}`);
-    }
+      },
+    });
   };
 
   return (
