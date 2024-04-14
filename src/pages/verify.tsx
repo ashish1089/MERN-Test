@@ -1,5 +1,4 @@
-"use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import OtpInput from "~/components/otpInput";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";

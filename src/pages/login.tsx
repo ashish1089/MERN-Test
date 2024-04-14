@@ -54,6 +54,7 @@ export default function Login() {
               value={userInput.email}
               onChange={handleChange}
               placeholder="Enter"
+              required
               className="mb-7 mt-2 w-full rounded-[6px] border px-4 py-3 "
             />
           </label>
@@ -66,6 +67,7 @@ export default function Login() {
                 value={userInput.password}
                 onChange={handleChange}
                 placeholder="Enter"
+                required
                 className="w-full px-4 py-3"
               />
               <span

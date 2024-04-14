@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 
@@ -12,41 +12,31 @@ interface UserInput {
 }
 export default function Home() {
   const router = useRouter();
-  const [userInput, setUserInput] = useState<UserInput>({
+  const [input, setInput] = useState<UserInput>({
     username: "",
     email: "",
     password: "",
   });
 
-  const addNewUser = api.user.create.useMutation();
-  const { data: isUserExist } = api.user.exits.useQuery({
-    email: userInput.email,
+  const { mutate: signUp, data } = api.user.create.useMutation({
+    onError: async () => {
+      await router.push("/login");
+    },
+    onSuccess: async () => {
+      console.log("signUp Successfully");
+      await router.push(
+        {
+          pathname: "verify",
+          query: {
+            email: input.email,
+          },
+        },
+        "/verify",
+      );
+    },
   });
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInput({ ...userInput, [event.target.name]: event.target.value });
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    // if (isUserExist) {
-    //   console.log("user Exist ", isUserExist);
-    //   await router.push("/login");
-    // } else {
-    //   addNewUser.mutate({
-    //     username: userInput.username,
-    //     email: userInput.email,
-    //     password: userInput.password,
-    //   });
-    console.log("User SignUp successfully");
-    // await router.push(`/verify?query${userInput.email}`);
-    await router.push({
-      pathname: "verify",
-      query: {
-        email: userInput.email,
-      },
-    });
+    setInput({ ...input, [event.target.name]: event.target.value });
   };
 
   return (
@@ -58,7 +48,7 @@ export default function Home() {
       </Head>
       <main className="mx-auto h-max  max-w-[1440px]">
         <div className="mx-auto mt-8 h-[691px] w-[576px] rounded-[20px] border-2 px-[60px] pt-8">
-          <form action="post" onSubmit={handleSubmit}>
+          <form action="post" onSubmit={async () => signUp(input)}>
             <h1 className="pb-6 text-center text-[32px] font-semibold">
               Create your account
             </h1>
@@ -66,7 +56,7 @@ export default function Home() {
               Name
               <input
                 type="text"
-                value={userInput.username}
+                value={input.username}
                 onChange={handleChange}
                 name="username"
                 placeholder="Enter"
@@ -77,7 +67,7 @@ export default function Home() {
               Email
               <input
                 type="email"
-                value={userInput.email}
+                value={input.email}
                 onChange={handleChange}
                 name="email"
                 placeholder="Enter"
@@ -88,7 +78,7 @@ export default function Home() {
               Password
               <input
                 type="password"
-                value={userInput.password}
+                value={input.password}
                 onChange={handleChange}
                 name="password"
                 placeholder="Enter"

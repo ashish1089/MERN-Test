@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import bcrypt from "bcrypt";
+import { TRPCError } from "@trpc/server";
 
 export const UserRouter = createTRPCRouter({
   get: publicProcedure
@@ -13,6 +14,7 @@ export const UserRouter = createTRPCRouter({
     )
     .query(async ({ input, ctx }) => {
       try {
+        const { email, password } = input;
         const user = await ctx.db.user.findFirst({
           where: {
             // username: input.username,
@@ -20,12 +22,13 @@ export const UserRouter = createTRPCRouter({
           },
         });
         return user
-          ? (await bcrypt.compare(input.password, user.password))
+          ? (await bcrypt.compare(password, user.password))
             ? true
             : false
           : false;
       } catch (error) {}
     }),
+
   create: publicProcedure
     .input(
       z.object({
@@ -35,12 +38,23 @@ export const UserRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { email, password, username } = input;
       try {
-        const hashedPassword = await bcrypt.hash(input.password, 10);
+        // check if yours exist in db,
+        const isUserExists = await ctx.db.user.findFirst({
+          where: { email: input.email },
+        });
+        if (isUserExists) {
+          return new TRPCError({
+            code: "BAD_REQUEST",
+            message: "user already exist",
+          });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
         return await ctx.db.user.create({
           data: {
-            username: input.username,
-            email: input.email,
+            username: username,
+            email: email,
             password: hashedPassword,
           },
         });
@@ -65,20 +79,6 @@ export const UserRouter = createTRPCRouter({
           },
         });
         return verifiedUser;
-      } catch (error) {
-        console.log(error);
-      }
-    }),
-  exits: publicProcedure
-    .input(z.object({ email: z.string() }))
-    .query(async ({ input, ctx }) => {
-      try {
-        const user = await ctx.db.user.findFirst({
-          where: {
-            email: input.email,
-          },
-        });
-        return user?.email;
       } catch (error) {
         console.log(error);
       }
