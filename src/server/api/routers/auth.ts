@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import bcrypt from "bcrypt";
-import { TRPCError } from "@trpc/server";
 
 export const UserRouter = createTRPCRouter({
-  get: publicProcedure
+  login: publicProcedure
     .input(
       z.object({
         // username: z.string(),
@@ -29,7 +28,7 @@ export const UserRouter = createTRPCRouter({
       } catch (error) {}
     }),
 
-  create: publicProcedure
+  signup: publicProcedure
     .input(
       z.object({
         username: z.string().min(1).max(20),
@@ -41,23 +40,22 @@ export const UserRouter = createTRPCRouter({
       const { email, password, username } = input;
       try {
         // check if yours exist in db,
-        const isUserExists = await ctx.db.user.findFirst({
+        const UserExists = await ctx.db.user.findFirst({
           where: { email: input.email },
         });
-        if (isUserExists) {
-          return new TRPCError({
-            code: "BAD_REQUEST",
-            message: "user already exist",
-          });
+        if (UserExists) {
+          // return { success: true, message: "user already exits" };
+          return UserExists;
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        return await ctx.db.user.create({
+        await ctx.db.user.create({
           data: {
             username: username,
             email: email,
             password: hashedPassword,
           },
         });
+        return { success: true, message: "user Successfully signup" };
       } catch (error) {
         console.log(error);
       }

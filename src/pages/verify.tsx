@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import OtpInput from "~/components/otpInput";
+import OtpInput from "~/pages/components/otpInput";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
+import Navbar from "./components/navbar";
 
 function Verify() {
   const router = useRouter();
@@ -12,7 +13,7 @@ function Verify() {
   const [otp, setOtp] = useState("");
   const handleOtpChange = (value: string) => setOtp(value);
 
-  const { mutate: verifyUser } = api.user.verify.useMutation();
+  const { mutate: verifyUser } = api.auth.verify.useMutation();
 
   const handleClick = () => {
     email && verifyUser({ email: email });
@@ -22,6 +23,7 @@ function Verify() {
 
   return (
     <>
+      <Navbar />
       <div className="mx-auto mt-8 h-[453px] w-[576px] rounded-[20px] border-2 px-[60px] pt-8">
         <div className="mb-12 text-center">
           <h1 className="pb-6 pt-3 text-[32px] font-semibold leading-[38.73px]">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Navbar from "~/pages/components/navbar";
 import { api } from "~/utils/api";
 
 interface Interest {
@@ -67,6 +68,7 @@ export default function Interest() {
 
   return (
     <>
+      <Navbar />
       <div className="mx-auto mt-16 h-[658px] w-[576px] rounded-[20px] border-2 border-[#c1c1c1] px-[60px] pt-8">
         <h1 className="mt-6 pb-6 text-center text-[32px] font-semibold">
           Please mark your interests!

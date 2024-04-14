@@ -1,9 +1,8 @@
-"use client";
-
 import Link from "next/link";
 import React, { type FormEvent, useState } from "react";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
+import Navbar from "./components/navbar";
 
 interface UserInput {
   email: string;
@@ -13,7 +12,7 @@ interface UserInput {
 export default function Login() {
   const router = useRouter();
   const [showPass, setShowPass] = useState("password");
-  const [userInput, setUserInput] = useState<UserInput>({
+  const [input, setInput] = useState<UserInput>({
     email: "",
     password: "",
   });
@@ -24,21 +23,24 @@ export default function Login() {
       setShowPass("password");
     }
   };
-  const { data: checkPass } = api.user.get.useQuery({
-    email: userInput.email,
-    password: userInput.password,
-  });
+  const { data: userPassword } = api.auth.login.useQuery(input);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInput({ ...userInput, [event.target.name]: event.target.value });
+    setInput({ ...input, [event.target.name]: event.target.value });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    checkPass ? await router.push("/interest") : null;
+    console.log(userPassword);
+
+    userPassword
+      ? await router.push("/interest")
+      : console.log("Invalid password or Email");
   };
 
   return (
     <>
+      <Navbar />
       <div className="mx-auto mt-8 h-[691px] w-[576px] rounded-[20px] border-2 px-[60px] pt-8">
         <form action="post" onSubmit={handleSubmit}>
           <h1 className="pb-6 text-center text-[32px] font-semibold">Login</h1>
@@ -51,11 +53,11 @@ export default function Login() {
             <input
               type="email"
               name="email"
-              value={userInput.email}
+              value={input.email}
               onChange={handleChange}
               placeholder="Enter"
               required
-              className="mb-7 mt-2 w-full rounded-[6px] border px-4 py-3 "
+              className="mb-7 mt-2 w-full rounded-[6px] border px-4 py-3"
             />
           </label>
           <label htmlFor="password">
@@ -64,7 +66,7 @@ export default function Login() {
               <input
                 type={showPass}
                 name="password"
-                value={userInput.password}
+                value={input.password}
                 onChange={handleChange}
                 placeholder="Enter"
                 required
